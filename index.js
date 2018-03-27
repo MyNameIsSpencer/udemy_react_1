@@ -1,30 +1,16 @@
 const express = require('express');
 // import express from 'express';       < This only post ES 2015?
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const mongoose = require('mongoose');
 const keys = require('./config/keys');
-const PORT = process.env.PORT || 5000;
-const passport = require('passport');
+require('./services/passport');
+require('./models/User');
+
+mongoose.connect(keys.mongoURI);
+
 
 const app = express();
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: keys.googleClientID,
-      clientSecret: keys.googleClientSecret,
-      callbackURL: '/auth/google/callback'
-    },
-    accessToken => {
-      console.log(accessToken);
-    }
-  )
-);
+require('./routes/authRoutes')(app);
 
-app.get(
-  '/auth/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email']
-  })
-)
-
+const PORT = process.env.PORT || 5000;
 app.listen(PORT);
